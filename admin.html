@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>پنل مدیریت ادمین</title>
+    <style>
+        body { font-family: Tahoma; background: #2c3e50; color: white; display: flex; justify-content: center; padding-top: 50px; }
+        .panel { background: #34495e; padding: 30px; border-radius: 10px; width: 400px; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #2ecc71; }
+        h2 { text-align: center; }
+        .status { margin-top: 20px; color: #f1c40f; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="panel">
+        <h2>پنل مدیریت (فقط ادمین)</h2>
+        
+        <label>عدد نمایشی برای رفیق:</label>
+        <input type="text" id="adminNumber" placeholder="مثال: 12.12.12.32">
+        <button onclick="updateNumber()">تغییر عدد</button>
+        
+        <hr style="border-color: #555;">
+        
+        <label>رمز عبور رفیق:</label>
+        <input type="text" id="adminPass" placeholder="رمز جدید را وارد کنید">
+        <button onclick="updatePassword()">تغییر رمز</button>
+
+        <div id="status" class="status">در حال اتصال به سرور...</div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const statusDiv = document.getElementById('status');
+
+        socket.on('connect', () => {
+            statusDiv.innerText = "به سرور متصل شدی. آماده تغییرات.";
+            statusDiv.style.color = "#2ecc71";
+        });
+
+        function updateNumber() {
+            const num = document.getElementById('adminNumber').value;
+            if(num) {
+                socket.emit('admin_update', { type: 'update_number', value: num });
+                alert('عدد با موفقیت تغییر کرد!');
+            }
+        }
+
+        function updatePassword() {
+            const pass = document.getElementById('adminPass').value;
+            if(pass) {
+                socket.emit('admin_update', { type: 'update_password', value: pass });
+                alert('رمز عبور تغییر کرد!');
+            }
+        }
+    </script>
+</body>
+</html>
