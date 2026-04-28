@@ -1,5 +1,5 @@
 {
-  "name": "secure-code-system",
+  "name": "secure-code-app",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
