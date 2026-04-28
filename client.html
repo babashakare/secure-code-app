@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ورود رفیق</title>
+    <style>
+        body { font-family: Tahoma; background: #ecf0f1; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 300px; }
+        input { width: 90%; padding: 10px; margin: 15px 0; border: 1px solid #ddd; border-radius: 5px; text-align: center; font-size: 18px; }
+        button { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #2980b9; }
+        #result { margin-top: 20px; font-size: 24px; font-weight: bold; color: #2c3e50; display: none; }
+        #error { color: red; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>ورود به سیستم</h2>
+        <p>رمز عبور را وارد کنید</p>
+        
+        <div id="loginForm">
+            <input type="password" id="passInput" placeholder="رمز عبور">
+            <button onclick="checkPassword()">ورود</button>
+            <div id="error">رمز اشتباه است!</div>
+        </div>
+
+        <div id="result">
+            کد شما:<br>
+            <span id="codeDisplay"></span>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const loginForm = document.getElementById('loginForm');
+        const resultDiv = document.getElementById('result');
+        const codeDisplay = document.getElementById('codeDisplay');
+        const errorDiv = document.getElementById('error');
+
+        function checkPassword() {
+            const pass = document.getElementById('passInput').value;
+            if (pass) {
+                socket.emit('friend_login', { password: pass });
+            }
+        }
+
+        socket.on('login_success', (data) => {
+            loginForm.style.display = 'none';
+            resultDiv.style.display = 'block';
+            codeDisplay.innerText = data.code;
+        });
+
+        socket.on('login_fail', (data) => {
+            errorDiv.style.display = 'block';
+            errorDiv.innerText = data.message;
+            setTimeout(() => errorDiv.style.display = 'none', 3000);
+        });
+    </script>
+</body>
+</html>
