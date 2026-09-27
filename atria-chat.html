@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atria AI Chat</title>
+<style>
+body{margin:0;font-family:tahoma;background:#111;color:white}
+.header{padding:15px;background:#222;display:flex;justify-content:space-between}
+#chat{height:75vh;overflow-y:auto;padding:15px}
+.msg{padding:12px;margin:10px;border-radius:15px;max-width:80%;line-height:1.8}
+.user{background:#2563eb;margin-right:auto}
+.ai{background:#333;margin-left:auto}
+.bottom{display:flex;padding:10px;background:#222}
+input{flex:1;padding:12px;border-radius:10px;border:none}
+button{margin-right:8px;padding:12px;border:none;border-radius:10px}
+</style>
+</head>
+<body>
+<div class="header"><span>🤖 Atria AI</span><button onclick="changeKey()">API</button></div>
+<div id="chat"></div>
+<div class="bottom">
+<input id="text" placeholder="پیام خود را بنویسید...">
+<button onclick="send()">ارسال</button>
+</div>
+<script>
+let API_KEY=localStorage.getItem("atria_key");
+if(!API_KEY){
+ API_KEY=prompt("API Key Atria را وارد کنید:");
+ if(API_KEY) localStorage.setItem("atria_key",API_KEY);
+}
+function changeKey(){
+ let k=prompt("API جدید را وارد کنید:");
+ if(k){localStorage.setItem("atria_key",k);API_KEY=k;alert("ذخیره شد");}
+}
+function addMessage(t,c){
+ let d=document.createElement("div");
+ d.className="msg "+c;
+ d.innerText=t;
+ document.getElementById("chat").appendChild(d);
+ document.getElementById("chat").scrollTop=999999;
+}
+async function send(){
+ let i=document.getElementById("text"), m=i.value.trim();
+ if(!m)return;
+ addMessage(m,"user"); i.value="";
+ addMessage("در حال فکر کردن...","ai");
+ try{
+ let r=await fetch("https://api.atria-asi.ai/v1/chat/completions",{
+ method:"POST",
+ headers:{
+ "Authorization":"Bearer "+API_KEY,
+ "Content-Type":"application/json"
+ },
+ body:JSON.stringify({
+ model:"Atria-Dawn-Preview",
+ messages:[
+ {role:"system",content:"You are a smart helpful AI assistant. Answer in Persian when user speaks Persian."},
+ {role:"user",content:m}
+ ]
+ })
+ });
+ let d=await r.json();
+ document.querySelector(".ai:last-child").remove();
+ addMessage(d.choices?d.choices[0].message.content:JSON.stringify(d),"ai");
+ }catch(e){
+ document.querySelector(".ai:last-child").remove();
+ addMessage("خطا: "+e,"ai");
+ }
+}
+document.getElementById("text").addEventListener("keydown",e=>{if(e.key==="Enter")send()});
+</script>
+</body>
+</html>
